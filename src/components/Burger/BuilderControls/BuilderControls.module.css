@@ -1,0 +1,17 @@
+.BuilderControls {
+  width: 100%;
+  display: flex;
+  background-color: #CF8F2E;
+  flex-flow: column wrap;
+  align-items: center;
+  box-shadow: 0 2px 1px #ccc;
+  margin: auto;
+  padding: 10px 0;
+}
+
+.Price {
+  margin: 10 0;
+  color: green;
+  font-size: 20px;
+  font-weight: bold ;
+}
