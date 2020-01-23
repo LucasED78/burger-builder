@@ -27,6 +27,7 @@ const BurgerIngredient = props => {
       break;
     case 'bread-bottom':
       ingredient = <div className={classes.BreatBottom}></div>
+      break;
     default:
       ingredient = null;
       break;
