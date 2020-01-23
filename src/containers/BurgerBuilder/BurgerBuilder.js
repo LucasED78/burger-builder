@@ -1,19 +1,80 @@
 import React, { Component } from 'react';
 import Aux from '../../hoc/Aux';
 import Burger from '../../components/Burger/Burger';
+import BuilderControls from '../../components/Burger/BuilderControls/BuilderControls';
+
+const INGREDIENTS_PRICE = {
+  salad: 0.4,
+  cheese: 0.5,
+  meat: 1.3,
+  bacon: 0.4
+}
 
 class BurgerBuilder extends Component {
 
   state = {
     ingredients: {
-      salad: 1,
-      meat: 2,
-      bacon: 1,
-      cheese: 1
+      salad: 0,
+      meat: 0,
+      bacon: 0,
+      cheese: 0
+    },
+    totalPrice: 4,
+    purchasable: true
+  }
+
+  addIngredientHandler = type => {
+    if(type !== null){
+      let ingredients = {...this.state.ingredients};
+
+      ingredients[type] += 1;
+      const updatedPrice = INGREDIENTS_PRICE[type] + this.state.totalPrice
+
+      this.setState(() => {
+        return {
+          ingredients: ingredients,
+          totalPrice: updatedPrice
+        }
+      }, this.updatePurchasableState);
     }
   }
 
+  removeIngredientHandler = type => {
+    let ingredients = {...this.state.ingredients};
+
+    if (ingredients[type] === 0) {
+      return;
+    }
+
+    ingredients[type] -= 1;
+    const updatedPrice = this.state.totalPrice - INGREDIENTS_PRICE[type];
+
+    this.setState(() => {
+      return {
+        ingredients: ingredients,
+        totalPrice: updatedPrice
+      }
+    }, this.updatePurchasableState)
+  }
+
+  updatePurchasableState(){
+    const ingredients = {...this.state.ingredients};
+
+    const sum = Object.keys(ingredients)
+    .map(igKey => ingredients[igKey])
+    .reduce((arr, el) => arr + el)
+
+    this.setState({ purchasable: sum === 0 })
+    
+  }
+
   render(){
+    const disabledInfo = {...this.state.ingredients};
+
+    for (const ing in disabledInfo){
+      disabledInfo[ing] = disabledInfo[ing] === 0
+    }
+
     return (
       <Aux>
         <div>
@@ -21,7 +82,12 @@ class BurgerBuilder extends Component {
         </div>
 
         <div>
-          Build Controls
+          <BuilderControls 
+          moreClicked={this.addIngredientHandler} 
+          lessClicked={this.removeIngredientHandler} 
+          disabledInfo={disabledInfo} 
+          currentPrice={this.state.totalPrice.toFixed(2)}
+          purchasable={this.state.purchasable}/>
         </div>
       </Aux>
     )
