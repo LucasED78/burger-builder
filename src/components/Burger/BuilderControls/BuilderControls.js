@@ -1,6 +1,7 @@
 import React from 'react';
 import classes from './BuilderControls.module.css';
 import BuilderControl from './BuilderControl/BuilderControl';
+import Button from '../../UI/Button/Button';
 
 const BuilderControls = props => {
   const controls = [
@@ -24,9 +25,10 @@ const BuilderControls = props => {
     <div className={classes.BuilderControls}>
       <p className={classes.Price}>{`$${props.currentPrice}`}</p>
       {renderedControls}
-      <button 
+      <Button 
+      type="Brown"
       disabled={props.purchasable}
-      onClick={props.ordered}>ORDER NOW</button>
+      clicked={props.ordered}>ORDER NOW</Button>
     </div>
   )
 }
