@@ -24,7 +24,9 @@ const BuilderControls = props => {
     <div className={classes.BuilderControls}>
       <p className={classes.Price}>{`$${props.currentPrice}`}</p>
       {renderedControls}
-      <button disabled={props.purchasable}>ORDER NOW</button>
+      <button 
+      disabled={props.purchasable}
+      onClick={props.ordered}>ORDER NOW</button>
     </div>
   )
 }
