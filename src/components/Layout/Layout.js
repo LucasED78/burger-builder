@@ -1,14 +1,32 @@
-import React from 'react';
+import React, { Component } from 'react';
 import Aux from '../../hoc/Aux';
 import classes from './Layout.module.css';
 import Toolbar from '../Navigation/Toolbar/Toolbar';
+import SideDrawer from '../Navigation/SideDrawer/SideDrawer';
 
-const Layout = props => (
-  <Aux>
-      <Toolbar />
+class Layout extends Component {
+  state = {
+    toggleMenu: false
+  }
 
-      <div className={classes.Content}>{ props.children }</div>
-  </Aux>
-);
+  toggleMenuHandler = () => {
+    const isToggled = this.state.toggleMenu;
+
+    this.setState({
+      toggleMenu: !isToggled
+    });
+  }
+
+  render(){
+    return (
+      <Aux>
+        <Toolbar menuClicked={this.toggleMenuHandler} />
+        <SideDrawer menuClosed={this.toggleMenuHandler} showBackdrop={this.state.toggleMenu} />
+
+        <div className={classes.Content}>{ this.props.children }</div>
+      </Aux>
+    )
+  }
+}
 
 export default Layout;

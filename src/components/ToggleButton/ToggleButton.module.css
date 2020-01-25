@@ -1,0 +1,7 @@
+.ToggleButton {
+  height: 80%;
+}
+
+@media (min-width: 500px){
+  .ToggleButton { display: none; }
+}
