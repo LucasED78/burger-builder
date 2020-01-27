@@ -4,6 +4,11 @@ import Burger from '../../components/Burger/Burger';
 import BuilderControls from '../../components/Burger/BuilderControls/BuilderControls';
 import Modal from '../../components/UI/Modal/Modal';
 import OrderSummary from '../../components/Burger/OrderSummary/OrderSummary';
+import OrderService from '../../services/OrderService';
+import Spinner from '../../components/UI/Spinner/Spinner'
+import withErrorHandler from '../../hoc/withErrorHandler/withErrorHandler';
+import api from '../../services/api';
+import IngredientsService from '../../services/IngredientsService';
 
 const INGREDIENTS_PRICE = {
   salad: 0.4,
@@ -15,15 +20,23 @@ const INGREDIENTS_PRICE = {
 class BurgerBuilder extends Component {
 
   state = {
-    ingredients: {
-      salad: 0,
-      meat: 0,
-      bacon: 0,
-      cheese: 0
-    },
+    ingredients: null,
     totalPrice: 4,
     purchasable: true,
-    purchasing: false
+    purchasing: false,
+    loading: false
+  }
+
+  async componentDidMount(){
+    this.setState({ loading: true })
+
+    try {
+      const ingredients = await IngredientsService.fetch();
+
+      this.setState({ ingredients: ingredients.data, loading: false });
+    } catch(e){
+      this.setState({ loading: false });
+    }
   }
 
   addIngredientHandler = type => {
@@ -77,24 +90,37 @@ class BurgerBuilder extends Component {
 
   purchaseCancelledHandler = () => this.setState({ purchasing: false })
 
-  purchaseContinuedHandler = () => alert("You continued!");
+  purchaseContinuedHandler = async () => {
+    this.setState({ loading: true});
+
+    try {
+      const response = await OrderService.save({
+        ingredients: this.state.ingredients,
+        totalPrice: this.state.totalPrice
+      });
+
+      this.setState({ loading: false, purchasing: false });
+    }catch(e){
+      this.setState({ loading: false, purchasing: false });
+    }
+  }
+
 
   render(){
     const disabledInfo = {...this.state.ingredients};
 
-    for (const ing in disabledInfo){
+    if (this.state.ingredients) for (const ing in disabledInfo){
       disabledInfo[ing] = disabledInfo[ing] === 0
     }
 
-    return (
+    const orderSummary = !this.state.loading && this.state.ingredients ? <OrderSummary 
+        ingredients={this.state.ingredients} 
+        purchaseCancelled={this.purchaseCancelledHandler}
+        purchaseContinued={this.purchaseContinuedHandler} 
+        totalPrice={this.state.totalPrice.toFixed(2)} /> : <Spinner />
+
+    const burger = !this.state.loading && this.state.ingredients ? (
       <Aux>
-        <Modal show={this.state.purchasing} onModalClosed={this.purchaseCancelledHandler}>
-          <OrderSummary 
-            ingredients={this.state.ingredients} 
-            purchaseCancelled={this.purchaseCancelledHandler}
-            purchaseContinued={this.purchaseContinuedHandler} 
-            totalPrice={this.state.totalPrice.toFixed(2)} />
-        </Modal>
         <div>
           <Burger ingredients={this.state.ingredients} />
         </div>
@@ -109,8 +135,18 @@ class BurgerBuilder extends Component {
           ordered={this.purchaseHandler}/>
         </div>
       </Aux>
+    ) : <Spinner />
+
+    return (
+      <Aux>
+        <Modal show={this.state.purchasing} onModalClosed={this.purchaseCancelledHandler}>
+          {orderSummary}
+        </Modal>
+        
+        {burger}
+      </Aux>
     )
   }
 }
 
-export default BurgerBuilder;
+export default withErrorHandler(BurgerBuilder, api);
